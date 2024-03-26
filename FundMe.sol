@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0
+ // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0 <0.9.0; 
  
 contract   FundMe{
@@ -11,7 +11,7 @@ contract   FundMe{
      owner=  payable (msg.sender);
    }
 
-    function isFunderExists(address _element) public view returns (bool) {
+    function isFunderExists(address _element) private view returns (bool) {///// function for ensuring  unique funders adress
         for (uint i = 0; i < funders.length; i++) {
             if (funders[i] == _element) {
                 return false;
@@ -21,8 +21,8 @@ contract   FundMe{
     }
 
 
-    receive() external payable {
-     require(msg.value >= 1 ether);
+    receive() external payable {///// function for collecting fund to contract adress
+     require(msg.value >= 1 ether,"Please send enough amount");////////// payment will not complete if amount is less than 1 ether
      fundersDetail[msg.sender] += msg.value;
      if(isFunderExists(msg.sender)){
       funders.push(msg.sender);
@@ -31,32 +31,30 @@ contract   FundMe{
     }
 
 
-    function checkContractAmount() public view  returns (uint256) {
-        require(msg.sender==owner);
+    function  totalFundAmount() public view  returns (uint256) { ///for checking contract balance
+        require(msg.sender==owner);////// only ownere can check the contract balance
 
-        uint256 amount=0;
-        for(uint i=0;i<funders.length;i++){
-           amount+=fundersDetail[funders[i]];
-        }
-        return address(this).balance;
+         
+        return address(this).balance;/// this means contract
     }
 
-    function transferToOwner()  public{
+    function withdraw()  public{  /// only owner will able call this function
       require(msg.sender==owner);
-      owner.transfer(checkContractAmount());
+      owner.transfer(totalFundAmount());
 
     }
 
-    function changeTheOwnership(address payable _newOwner) public{
+    function changeOwnership(address payable _newOwner) public{ ///// changing the ownership only current owner can do this 
       require(msg.sender==owner);
-      owner= payable (_newOwner);
+      owner= payable (_newOwner);//// ensuring next owner to payable
     }
 
-    function checkOwnerBalance ()  public  view  returns (uint){
+    function checkOwnerBalance ()  public  view  returns (uint){///// checking owner balance
+         require(msg.sender==owner);
          return address(owner).balance;
     }
     
-    function getFundersLength() public view returns (uint256){
+    function noOfFunders() public view returns (uint256){ //// any one can call this to see no of funders
       return funders.length;
     }
 
